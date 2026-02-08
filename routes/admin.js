@@ -101,3 +101,34 @@ router.post("/create-lifafa", adminAuth, async (req, res) => {
 
   res.json({ msg: "Lifafa created", lifafaId: lifafa._id });
 });
+
+
+/**
+ * ADD / DEDUCT USER BALANCE
+ */
+router.post("/user-balance", adminAuth, async (req, res) => {
+  const { number, amount, action } = req.body; 
+  // action = "add" | "deduct"
+
+  const user = await User.findOne({ number });
+  if (!user) return res.status(404).json({ msg: "User not found" });
+
+  if (action === "deduct" && user.balance < amount) {
+    return res.status(400).json({ msg: "Insufficient balance" });
+  }
+
+  user.balance = action === "add"
+    ? user.balance + amount
+    : user.balance - amount;
+
+  await user.save();
+
+  await Transaction.create({
+    user: user._id,
+    type: action === "add" ? "credit" : "debit",
+    amount,
+    description: `Admin ${action}`
+  });
+
+  res.json({ msg: `Balance ${action}ed successfully` });
+});
