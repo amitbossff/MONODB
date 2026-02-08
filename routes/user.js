@@ -160,3 +160,33 @@ router.post("/create-code", auth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+/**
+ * CLAIM LIFAFA
+ */
+router.post("/claim-lifafa", auth, async (req, res) => {
+  const { lifafaId } = req.body;
+
+  const lifafa = await Lifafa.findById(lifafaId);
+  if (!lifafa || !lifafa.active) {
+    return res.status(400).json({ msg: "Invalid lifafa" });
+  }
+
+  const user = await User.findById(req.user.id);
+
+  if (lifafa.claimedBy.includes(user.number)) {
+    return res.status(400).json({ msg: "Already claimed" });
+  }
+
+  if (lifafa.numbers.length && !lifafa.numbers.includes(user.number)) {
+    return res.status(403).json({ msg: "Not eligible" });
+  }
+
+  user.balance += lifafa.amount;
+  lifafa.claimedBy.push(user.number);
+
+  await user.save();
+  await lifafa.save();
+
+  res.json({ msg: "Lifafa claimed", amount: lifafa.amount });
+});
