@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema({
 
   balance: { type: Number, default: 0 },
 
+  otp: String,
+otpExpire: Date,
   isVerified: { type: Boolean, default: false },
   isBlocked: { type: Boolean, default: false },
 
