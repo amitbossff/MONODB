@@ -127,3 +127,36 @@ router.post("/withdraw", auth, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+/**
+ * CREATE CODE
+ */
+router.post("/create-code", auth, async (req, res) => {
+  try {
+    let { numbers } = req.body;
+
+    if (!Array.isArray(numbers) || numbers.length === 0) {
+      return res.status(400).json({ msg: "Numbers required" });
+    }
+
+    // clean numbers
+    numbers = [...new Set(numbers)]
+      .filter(n => n.length === 10 && /^\d+$/.test(n));
+
+    if (numbers.length === 0) {
+      return res.status(400).json({ msg: "No valid numbers" });
+    }
+
+    const code = generateCode();
+
+    await Code.create({
+      user: req.user.id,
+      code,
+      numbers
+    });
+
+    res.json({ msg: "Code created", code, total: numbers.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
