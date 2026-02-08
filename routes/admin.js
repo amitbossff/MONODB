@@ -75,6 +75,12 @@ router.post("/withdrawal/:id", adminAuth, async (req, res) => {
 
 module.exports = router;
 
+await AdminLog.create({
+  admin: req.admin.id,
+  action: "WITHDRAWAL_" + status.toUpperCase(),
+  target: wd.user.number
+});
+
 /**
  * CREATE LIFAFA
  */
