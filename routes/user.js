@@ -17,6 +17,10 @@ router.get("/dashboard", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
 
+    if (user.isBlocked) {
+  return res.status(403).json({ msg: "Account blocked" });
+}
+    
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -41,6 +45,10 @@ module.exports = router;
 router.post("/pay", auth, async (req, res) => {
   try {
     const { receiverNumber, amount } = req.body;
+
+    if (user.isBlocked) {
+  return res.status(403).json({ msg: "Account blocked" });
+    }
 
     if (!receiverNumber || !amount || amount <= 0) {
       return res.status(400).json({ msg: "Invalid data" });
@@ -105,6 +113,10 @@ router.get("/transactions", auth, async (req, res) => {
 router.post("/withdraw", auth, async (req, res) => {
   try {
     const { amount } = req.body;
+
+    if (user.isBlocked) {
+  return res.status(403).json({ msg: "Account blocked" });
+    }
 
     if (!amount || amount <= 0) {
       return res.status(400).json({ msg: "Invalid amount" });
