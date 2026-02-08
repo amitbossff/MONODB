@@ -5,6 +5,7 @@ const LifafaSchema = new mongoose.Schema({
   amount: Number,
   code: String, // optional
   numbers: [String],
+  channel: String,
   claimedBy: [String],
   active: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
