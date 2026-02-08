@@ -1,3 +1,5 @@
+const Lifafa = require("../models/Lifafa");
+const Code = require("../models/Code");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -71,3 +73,30 @@ router.post("/withdrawal/:id", adminAuth, async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * CREATE LIFAFA
+ */
+router.post("/create-lifafa", adminAuth, async (req, res) => {
+  const { title, amount, code } = req.body;
+
+  let numbers = [];
+
+  if (code) {
+    const codeData = await Code.findOne({ code, used: false });
+    if (!codeData) return res.status(400).json({ msg: "Invalid code" });
+
+    numbers = codeData.numbers;
+    codeData.used = true;
+    await codeData.save();
+  }
+
+  const lifafa = await Lifafa.create({
+    title,
+    amount,
+    code,
+    numbers
+  });
+
+  res.json({ msg: "Lifafa created", lifafaId: lifafa._id });
+});
