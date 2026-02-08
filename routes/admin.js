@@ -78,7 +78,7 @@ module.exports = router;
  * CREATE LIFAFA
  */
 router.post("/create-lifafa", adminAuth, async (req, res) => {
-  const { title, amount, code } = req.body;
+  const { title, amount, code, channel } = req.body;
 
   let numbers = [];
 
@@ -92,11 +92,12 @@ router.post("/create-lifafa", adminAuth, async (req, res) => {
   }
 
   const lifafa = await Lifafa.create({
-    title,
-    amount,
-    code,
-    numbers
-  });
+  title,
+  amount,
+  code,
+  numbers,
+  channel
+});
 
   res.json({ msg: "Lifafa created", lifafaId: lifafa._id });
 });
