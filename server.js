@@ -21,3 +21,4 @@ app.listen(PORT, () => {
 });
 
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/user", require("./routes/user"));
