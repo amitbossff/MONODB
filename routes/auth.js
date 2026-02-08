@@ -63,6 +63,10 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid password" });
 
+    if (!user.isVerified) {
+  return res.status(403).json({ msg: "Please verify OTP first" });
+    }
+
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
