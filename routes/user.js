@@ -1,3 +1,5 @@
+const checkJoin = require("../utils/checkJoin");
+const Lifafa = require("../models/Lifafa");
 const Code = require("../models/Code");
 const generateCode = require("../utils/codeGen");
 const Withdrawal = require("../models/Withdrawal");
@@ -180,6 +182,13 @@ router.post("/claim-lifafa", auth, async (req, res) => {
 
   if (lifafa.numbers.length && !lifafa.numbers.includes(user.number)) {
     return res.status(403).json({ msg: "Not eligible" });
+  }
+
+  if (lifafa.channel) {
+  const joined = await checkJoin(lifafa.channel, user.telegramUid);
+  if (!joined) {
+    return res.status(403).json({ msg: "Join Telegram channel first" });
+  }
   }
 
   user.balance += lifafa.amount;
