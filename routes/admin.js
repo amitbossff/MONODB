@@ -132,3 +132,23 @@ router.post("/user-balance", adminAuth, async (req, res) => {
 
   res.json({ msg: `Balance ${action}ed successfully` });
 });
+
+/**
+ * BLOCK / UNBLOCK USER
+ */
+router.post("/block-user", adminAuth, async (req, res) => {
+  const { number, block } = req.body;
+  // block = true / false
+
+  const user = await User.findOne({ number });
+  if (!user) {
+    return res.status(404).json({ msg: "User not found" });
+  }
+
+  user.isBlocked = block;
+  await user.save();
+
+  res.json({
+    msg: block ? "User blocked successfully" : "User unblocked successfully"
+  });
+});
