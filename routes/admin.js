@@ -1,3 +1,4 @@
+const AdminLog = require("../models/AdminLog");
 const Lifafa = require("../models/Lifafa");
 const Code = require("../models/Code");
 const express = require("express");
@@ -138,6 +139,12 @@ router.post("/user-balance", adminAuth, async (req, res) => {
  */
 router.post("/block-user", adminAuth, async (req, res) => {
   const { number, block } = req.body;
+
+  await AdminLog.create({
+  admin: req.admin.id,
+  action: block ? "BLOCK_USER" : "UNBLOCK_USER",
+  target: number
+});
   // block = true / false
 
   const user = await User.findOne({ number });
