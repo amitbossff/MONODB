@@ -1,3 +1,5 @@
+const bot = require("../config/telegramBot");
+const generateOTP = require("../utils/otp");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -8,6 +10,7 @@ const router = express.Router();
 /**
  * REGISTER
  */
+
 router.post("/register", async (req, res) => {
   try {
     const { username, number, password, telegramUid } = req.body;
@@ -22,17 +25,26 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = generateOTP();
 
     const user = new User({
       username,
       number,
       password: hashedPassword,
-      telegramUid
+      telegramUid,
+      otp,
+      otpExpire: Date.now() + 5 * 60 * 1000 // 5 min
     });
 
     await user.save();
 
-    res.json({ msg: "Registered successfully. OTP will be sent via Telegram." });
+    // Send OTP via Telegram
+    await bot.sendMessage(
+      telegramUid,
+      `🔐 Lifafa OTP Verification\n\nYour OTP is: ${otp}\nValid for 5 minutes`
+    );
+
+    res.json({ msg: "OTP sent to Telegram. Please verify." });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
