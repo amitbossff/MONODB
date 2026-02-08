@@ -1,3 +1,4 @@
+const Withdrawal = require("../models/Withdrawal");
 const Transaction = require("../models/Transaction");
 const express = require("express");
 const User = require("../models/User");
@@ -94,3 +95,33 @@ router.get("/transactions", auth, async (req, res) => {
   }
 });
 
+/**
+ * WITHDRAWAL REQUEST
+ */
+router.post("/withdraw", auth, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ msg: "Invalid amount" });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (user.balance < amount) {
+      return res.status(400).json({ msg: "Insufficient balance" });
+    }
+
+    user.balance -= amount;
+    await user.save();
+
+    await Withdrawal.create({
+      user: user._id,
+      amount
+    });
+
+    res.json({ msg: "Withdrawal request submitted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
