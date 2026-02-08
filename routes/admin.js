@@ -165,3 +165,12 @@ router.post("/block-user", adminAuth, async (req, res) => {
     msg: block ? "User blocked successfully" : "User unblocked successfully"
   });
 });
+
+
+      /**
+ * ADMIN LOGS
+ */
+router.get("/logs", adminAuth, async (req, res) => {
+  const logs = await AdminLog.find().sort({ createdAt: -1 }).limit(100);
+  res.json(logs);
+});
